@@ -2,6 +2,7 @@ const User=require("../Models/User");
 const OTP=require("../Models/OTP");
 const bcrypt=require("bcrypt")
 const Profile=require("../Models/Profile")
+const { mailSender } = require("../utils/mailsender");
 const otpGenerator = require('otp-generator')
 const jwt=require("jsonwebtoken")
 
@@ -101,46 +102,62 @@ exports.SignUp=async (req,res)=>{
 
 // otp controllers
 
-exports.sendOTP=async(req,res)=>{
-    try{
-        const {email}=req.body
-        // validation
-        if(!email){
-            return res.status(400).json({
-                success:false,
-                message:"Email is required"
-                })
-                }
+exports.sendOTP = async (req, res) => {
+  try {
+    const { email } = req.body;
 
-                // generate otp
-                const result=otpGenerator.generate(6,{
-                    upperCaseAlphabets: false,
-                     specialChars: false,
-                     lowerCaseAlphabets:false
-                })
-                // save otp in db
-             const otpdoc=  new OTP({
-                email,
-                otp:result
-
-               }).save()
-
-             return  res.status(201).json({
-                success:true,
-                message:"OTP sent successfully",
-                otp:result
-               })
-
+    // validation
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is required",
+      });
     }
-    catch(error){
-       return res.status(500).json({
-            success:false,
-            message:"error occcured while creating otp ",
-            error:error.message
-            })
 
-    }
-}
+    console.log("📩 Request for:", email);
+
+    // generate OTP
+    const otp = otpGenerator.generate(6, {
+      upperCaseAlphabets: false,
+      lowerCaseAlphabets: false,
+      specialChars: false,
+    });
+
+    console.log("🔢 Generated OTP:", otp);
+
+    // save in DB
+    await OTP.create({ email, otp });
+
+    // send email
+    // await mailSender(
+    //   email,
+    //   "OTP Verification",
+    //   `
+    //   <div style="font-family: Arial; text-align: center;">
+    //     <h2>OTP Verification</h2>
+    //     <p>Your OTP is:</p>
+    //     <h1 style="color:blue;">${otp}</h1>
+    //     <p>This OTP is valid for 5 minutes.</p>
+    //   </div>
+    //   `
+    // );
+
+    return res.status(200).json({
+  success: true,
+  message: "OTP sent successfully",
+  otp: otp   // 👈 add this line
+});
+
+  } catch (error) {
+    console.error("❌ ERROR:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to send OTP",
+      error: error.message,
+    });
+  }
+};
 
 // login 
 
