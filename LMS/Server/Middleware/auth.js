@@ -12,7 +12,7 @@ exports.auth = async (req, res, next) => {
 		const token =
 			req.cookies.token ||
 			req.body.token ||
-			req.header("Authorization").replace("Bearer ", "");
+			req.header("Authorization")?.replace("Bearer ", "");
 
 			// console.log("token mila",req.header("Authorization"))
 		// If JWT is missing, return	 401 Unauthorized response
@@ -24,13 +24,28 @@ exports.auth = async (req, res, next) => {
 			// Verifying the JWT using the secret key stored in environment variables
 			const decode = await jwt.verify(token, process.env.JWT_SECRET);
 			console.log(decode);
+
+			// Session validation
+			const Session = require("../Models/Session");
+			const activeSession = await Session.findOne({ user: decode.id, token });
+			if (!activeSession) {
+				return res.status(401).json({ 
+					success: false, 
+					message: "Session expired or logged out from this device" 
+				});
+			}
+			
+			// Update last active asynchronously
+			activeSession.lastActive = new Date();
+			await activeSession.save().catch(err => console.error("Session update error:", err));
+
 			// Storing the decoded JWT payload in the request object for further use
 			req.user = decode;
 		} catch (error) {
 			// If JWT verification fails, return 401 Unauthorized response
 			return res
 				.status(401)
-				.json({ success: false, message: "token is invalid" });
+				.json({ success: false, message: "token is invalid or session expired" });
 		}
 
 		// If JWT is valid, move on to the next middleware or request handler

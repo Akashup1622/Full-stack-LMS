@@ -1,9 +1,13 @@
-import {useForm }from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { apiConnector } from "../Services/apiConnector";
+import toast, { Toaster } from "react-hot-toast";
+
 export default function NewPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     register,
@@ -14,15 +18,36 @@ export default function NewPassword() {
 
   const password = watch("password");
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+    // Extract token from URL: /new-password?token=abc123
+    const token = new URLSearchParams(location.search).get("token");
+    if (!token) {
+      toast.error("Reset token is missing. Please use the link from your email.");
+      return;
+    }
 
-    // 🔥 call backend
-    navigate("/reset-success");
+    const t = toast.loading("Updating your password...");
+    try {
+      const res = await apiConnector("POST", "/auth/forget-password", {
+        password: data.password,
+        confirmpassword: data.confirmPassword,
+        token,
+      });
+      if (res.data.success) {
+        toast.success("Password updated successfully!");
+        navigate("/reset-success");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to reset password.");
+    } finally {
+      toast.dismiss(t);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#020617] to-black text-white px-4">
+      <Toaster position="top-center" />
 
       {/* Glow */}
       <div className="absolute w-[300px] h-[300px] bg-purple-500/20 blur-[120px] rounded-full top-10 left-10"></div>

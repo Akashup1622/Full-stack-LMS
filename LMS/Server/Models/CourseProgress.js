@@ -15,6 +15,10 @@ const courseProgress = new mongoose.Schema({
       ref: "SubSection",
     },
   ],
+  progress: {
+    type: Number,
+    default: 0,
+  },
 })
 
 module.exports = mongoose.model("courseProgress", courseProgress)

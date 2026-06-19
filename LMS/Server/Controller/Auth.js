@@ -2,7 +2,8 @@ const User=require("../Models/User");
 const OTP=require("../Models/OTP");
 const bcrypt=require("bcrypt")
 const Profile=require("../Models/Profile")
-const { mailSender } = require("../utils/mailsender");
+const { mailSender } = require("../Utils/mailsender");
+const { passwordUpdated } = require("../mail/PasswordUpdate");
 const otpGenerator = require('otp-generator')
 const jwt=require("jsonwebtoken")
 
@@ -13,8 +14,8 @@ exports.SignUp=async (req,res)=>{
         // data 
         const {firstName,lastName,password,email,phone,accountType,confirmPassword,otp}=req.body;
 
-        // validation
-        if(!firstName || !lastName || !password || !email || !phone || !accountType || !confirmPassword || !otp){
+        // validation (phone is optional)
+        if(!firstName || !lastName || !password || !email || !accountType || !confirmPassword || !otp){
             return res.status(400).json({
                 success:false,
                 message:"Please fill all the fields",
@@ -189,12 +190,48 @@ exports.login=async(req,res)=>{
                     })
              }
              else{
+                if (user.twoFactorEnabled) {
+                    const tempToken = jwt.sign(
+                        { id: user._id, action: "2fa_verify" },
+                        process.env.JWT_SECRET,
+                        { expiresIn: "5m" }
+                    );
+                    return res.status(200).json({
+                        success: true,
+                        twoFactorRequired: true,
+                        tempToken
+                    });
+                }
 
                 // token generate 
                 const token=jwt.sign({email:user.email,id:user._id,accountType:user.accountType},
                     process.env.JWT_SECRET,
                     {expiresIn:"24h"}
                 )
+
+                // Session tracking: Save active session and enforce concurrent session limit (max 2)
+                const Session = require("../Models/Session");
+                const deviceInfo = req.headers["user-agent"] || "Unknown Device";
+                const ipAddress = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress || "0.0.0.0";
+                
+                try {
+                    const activeSessionsCount = await Session.countDocuments({ user: user._id });
+                    if (activeSessionsCount >= 2) {
+                        const oldestSession = await Session.findOne({ user: user._id }).sort({ lastActive: 1 });
+                        if (oldestSession) {
+                            await Session.findByIdAndDelete(oldestSession._id);
+                        }
+                    }
+                    await Session.create({
+                        user: user._id,
+                        token,
+                        deviceInfo,
+                        ipAddress,
+                        lastActive: new Date()
+                    });
+                } catch (sessionError) {
+                    console.error("Session recording error: ", sessionError);
+                }
 
                 // create cookies
                 const options={
@@ -210,7 +247,6 @@ exports.login=async(req,res)=>{
                 message:"Login Successfull",
                 token:token,
                 user,
-
                })
 
              }

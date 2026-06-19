@@ -73,7 +73,15 @@ const userSchema = new mongoose.Schema(
 		  //   unique:true,
 			trim:true
 			
-		 }
+		 },
+		twoFactorSecret: {
+			type: String,
+			default: ""
+		},
+		twoFactorEnabled: {
+			type: Boolean,
+			default: false
+		}
 
 		// Add timestamps for when the document is created and last modified
 	},

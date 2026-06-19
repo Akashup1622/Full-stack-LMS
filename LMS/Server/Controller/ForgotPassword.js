@@ -2,7 +2,7 @@ const User=require("../Models/User");
 // const cryptoRandomString=require("crypto-random-string")
 const crypto=require("crypto")
 const bcrypt=require("bcrypt")
-const {mailSender}=require("../Utils/mailSender")
+const {mailSender}=require("../Utils/mailsender")
 
 exports.forgetPasswordToken=async(req,res)=>{
     try{
@@ -63,12 +63,18 @@ return res.status(200).json({
 
 // create new password
 
-exports.forgetPassword=async()=>
+exports.forgetPassword=async(req,res)=>
 {
     try{
         const {password,confirmpassword,token}=req.body;
 
-        // H/W do validation 
+        if(!password || !confirmpassword || !token){
+            return res.status(400).json({
+                success:false,
+                message:"All fields are required"
+            })
+        }
+
         // match password
         if(password!==confirmpassword){
             return res.status(400).json({
@@ -78,7 +84,13 @@ exports.forgetPassword=async()=>
                 }
 
                  // check token is exprire or not 
-                 const userdata=await User.find({token:token})
+                 const userdata=await User.findOne({token:token})
+                 if(!userdata){
+                     return res.status(404).json({
+                         success:false,
+                         message:"Token is invalid"
+                     })
+                 }
                  if(userdata.tokenExpriresIn < Date.now()){
                      return res.status(400).json({
                          success:false,

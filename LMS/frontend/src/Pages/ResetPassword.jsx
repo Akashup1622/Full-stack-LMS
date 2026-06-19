@@ -1,5 +1,8 @@
-import {useForm} from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
+import { apiConnector } from "../Services/apiConnector";
+import toast, { Toaster } from "react-hot-toast";
+
 export default function ResetPassword() {
   const navigate = useNavigate();
 
@@ -9,15 +12,25 @@ export default function ResetPassword() {
     formState: { errors, isSubmitting },
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-
-    // 🔥 call backend API
-    navigate("/check-email");
+  const onSubmit = async (data) => {
+    const t = toast.loading("Sending reset link to your email...");
+    try {
+      const res = await apiConnector("POST", "/auth/forget-password-token", { email: data.email });
+      if (res.data.success) {
+        toast.success("Reset link sent! Check your inbox.");
+        navigate("/check-email");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to send reset email.");
+    } finally {
+      toast.dismiss(t);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f172a] via-[#020617] to-black text-white px-4">
+      <Toaster position="top-center" />
 
       {/* Glow */}
       <div className="absolute w-[300px] h-[300px] bg-pink-500/20 blur-[120px] rounded-full top-10 left-10"></div>

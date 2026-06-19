@@ -16,6 +16,14 @@ const {
 
 const { auth } = require("../Middleware/auth")
 
+// Import 2FA Controllers
+const {
+  setup2FA,
+  verify2FA,
+  disable2FA,
+  loginVerify2FA
+} = require("../Controller/TwoFactorAuth")
+
 // Routes for Login, Signup, and Authentication
 
 // ********************************************************************************************************
@@ -33,6 +41,12 @@ router.post("/sendotp", sendOTP)
 
 // Route for Changing the password
 router.post("/changepassword", auth, changePassword)
+
+// Two-Factor Authentication (2FA) Routes
+router.post("/2fa/setup", auth, setup2FA)
+router.post("/2fa/verify", auth, verify2FA)
+router.post("/2fa/disable", auth, disable2FA)
+router.post("/2fa/login-verify", loginVerify2FA)
 
 // ********************************************************************************************************
 //                                      forget Password

@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: lms_mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - lms_network
+
+  redis:
+    image: redis:alpine
+    container_name: lms_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - lms_network
+
+  server:
+    build:
+      context: ./Server
+      dockerfile: Dockerfile
+    container_name: lms_server
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./Server:/app
+      - /app/node_modules
+    environment:
+      - PORT=4000
+      - MONGODB_URL=mongodb://mongodb:27017/fullstackapp
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=akash
+      - CLOUD_NAME=Akash
+      - API_KEY=163861889951932
+      - API_SECRET=MrddhJgA3An3QCUmGcrURfA6t-w
+      - MAIL_USER=akashupadhyay764@gmail.com
+      - MAIL_PASS=jjitnvjcpiccptxn
+    depends_on:
+      - mongodb
+      - redis
+    networks:
+      - lms_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lms_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - lms_network
+
+volumes:
+  mongo_data:
+  redis_data:
+
+networks:
+  lms_network:
+    driver: bridge

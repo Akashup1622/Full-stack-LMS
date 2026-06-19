@@ -43,6 +43,10 @@ exports.showAllCategories = async (req, res) => {
 	}
 };
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
 //categoryPageDetails 
 
 exports.categoryPageDetails = async (req, res) => {

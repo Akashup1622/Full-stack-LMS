@@ -34,10 +34,32 @@ exports.updateCourseProgress = async (req, res) => {
       courseProgress.completedVideos.push(subsectionId)
     }
 
+    // Calculate progress percentage: progress = (completedLectures / totalLectures) * 100
+    const Course = require("../Models/Course")
+    const course = await Course.findById(courseId).populate({
+      path: "courseContent",
+      populate: {
+        path: "subSection"
+      }
+    })
+    
+    let totalLectures = 0
+    if (course && course.courseContent) {
+      course.courseContent.forEach(sec => {
+        totalLectures += sec.subSection?.length || 0
+      })
+    }
+    
+    if (totalLectures > 0) {
+      courseProgress.progress = Math.round((courseProgress.completedVideos.length / totalLectures) * 100 * 100) / 100
+    } else {
+      courseProgress.progress = 100
+    }
+
     // Save the updated course progress
     await courseProgress.save()
 
-    return res.status(200).json({ message: "Course progress updated" })
+    return res.status(200).json({ message: "Course progress updated", progress: courseProgress.progress })
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: "Internal server error" })
