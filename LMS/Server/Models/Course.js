@@ -24,6 +24,23 @@ const coursesSchema = new mongoose.Schema({
 			ref: "RatingAndReview",
 		},
 	],
+	rating: {
+		type: Number,
+		default: 0,
+	},
+	totalReviews: {
+		type: Number,
+		default: 0,
+	},
+	level: {
+		type: String,
+		enum: ["Beginner", "Intermediate", "Advanced"],
+		default: "Beginner",
+	},
+	duration: {
+		type: String,
+		default: "8 hours",
+	},
 	price: {
 		type: Number,
 	},
@@ -46,6 +63,10 @@ const coursesSchema = new mongoose.Schema({
 			ref: "User",
 		},
 	],
+	totalStudentsEnrolled: {
+		type: Number,
+		default: 0,
+	},
 	instructions: {
 		type: [String],
 	},

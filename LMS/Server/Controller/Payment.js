@@ -71,12 +71,17 @@ exports.verifyPayment = async (req, res) => {
       return res.status(400).json({ success: false, message: "Already enrolled in this course" })
     }
 
-    // 1. Add user to course enrolled list
+    // 1. Add user to course enrolled list and update total count
     course.studentsEnrolled.push(userId)
+    course.totalStudentsEnrolled = course.studentsEnrolled.length
     await course.save()
 
-    // 2. Add course to user's course list
+    // 2. Add course to user's course lists
     user.courses.push(courseId)
+    if (!user.enrolledCourses) {
+      user.enrolledCourses = []
+    }
+    user.enrolledCourses.push(courseId)
 
     // 3. Create course progress tracking
     const courseProgress = await CourseProgress.create({

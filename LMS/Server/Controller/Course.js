@@ -507,3 +507,181 @@ exports.deleteCourse = async (req, res) => {
     })
   }
 }
+
+// Explore courses with advanced search and filters
+exports.exploreCourses = async (req, res) => {
+  try {
+    const {
+      search = "",
+      category = "",
+      rating = "",
+      level = "",
+      price = "",
+      sort = "",
+      page = 1,
+      limit = 6,
+    } = req.query
+
+    const query = { status: "Published" }
+
+    if (search) {
+      query.$or = [
+        { courseName: { $regex: search, $options: "i" } },
+        { courseDescription: { $regex: search, $options: "i" } },
+      ]
+    }
+
+    if (category && category !== "All" && category !== "undefined") {
+      query.category = category
+    }
+
+    if (level && level !== "All") {
+      query.level = level
+    }
+
+    if (rating) {
+      query.rating = { $gte: Number(rating) }
+    }
+
+    if (price) {
+      if (price === "Free") {
+        query.price = 0
+      } else if (price === "Paid") {
+        query.price = { $gt: 0 }
+      }
+    }
+
+    let sortOption = {}
+    if (sort === "Newest") {
+      sortOption = { createdAt: -1 }
+    } else if (sort === "Popular") {
+      sortOption = { totalStudentsEnrolled: -1 }
+    } else if (sort === "Highest Rated") {
+      sortOption = { rating: -1 }
+    } else if (sort === "Price Low-High") {
+      sortOption = { price: 1 }
+    } else if (sort === "Price High-Low") {
+      sortOption = { price: -1 }
+    } else {
+      sortOption = { createdAt: -1 }
+    }
+
+    const skip = (Number(page) - 1) * Number(limit)
+
+    const totalCourses = await Course.countDocuments(query)
+    const courses = await Course.find(query)
+      .populate("instructor", "firstName lastName image")
+      .populate("category", "name")
+      .sort(sortOption)
+      .skip(skip)
+      .limit(Number(limit))
+      .exec()
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        courses,
+        totalCourses,
+        currentPage: Number(page),
+        totalPages: Math.ceil(totalCourses / Number(limit)),
+      },
+    })
+  } catch (error) {
+    console.error("EXPLORE COURSES ERROR:", error)
+    return res.status(500).json({
+      success: false,
+      message: "Failed to explore courses",
+      error: error.message,
+    })
+  }
+}
+
+// Get trending courses
+exports.getTrendingCourses = async (req, res) => {
+  try {
+    const trending = await Course.find({ status: "Published" })
+      .populate("instructor", "firstName lastName image")
+      .populate("category", "name")
+      .sort({ rating: -1, totalStudentsEnrolled: -1 })
+      .limit(5)
+      .exec()
+
+    return res.status(200).json({
+      success: true,
+      data: trending,
+    })
+  } catch (error) {
+    console.error("GET TRENDING COURSES ERROR:", error)
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch trending courses",
+      error: error.message,
+    })
+  }
+}
+
+// Get newly added courses
+exports.getNewCourses = async (req, res) => {
+  try {
+    const newCourses = await Course.find({ status: "Published" })
+      .populate("instructor", "firstName lastName image")
+      .populate("category", "name")
+      .sort({ createdAt: -1 })
+      .limit(5)
+      .exec()
+
+    return res.status(200).json({
+      success: true,
+      data: newCourses,
+    })
+  } catch (error) {
+    console.error("GET NEW COURSES ERROR:", error)
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch new courses",
+      error: error.message,
+    })
+  }
+}
+
+// Get course by ID
+exports.getCourseById = async (req, res) => {
+  try {
+    const { id } = req.params
+    const course = await Course.findById(id)
+      .populate({
+        path: "instructor",
+        populate: {
+          path: "additionalDetails",
+        },
+      })
+      .populate("category")
+      .populate("ratingAndReviews")
+      .populate({
+        path: "courseContent",
+        populate: {
+          path: "subSection",
+        },
+      })
+      .exec()
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      })
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: course,
+    })
+  } catch (error) {
+    console.error("GET COURSE BY ID ERROR:", error)
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch course details",
+      error: error.message,
+    })
+  }
+}

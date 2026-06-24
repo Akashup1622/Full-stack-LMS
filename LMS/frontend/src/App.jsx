@@ -10,6 +10,7 @@ import ResetSuccess from "./Pages/Resetsuccess"
 // Pages & Components imports
 import LandingPage from "./Pages/LandingPage"
 import CourseDetails from "./Pages/CourseDetails"
+import ExploreCatalog from "./Pages/ExploreCatalog"
 import DashboardLayout from "./Components/Dashboard/DashboardLayout"
 import ProtectedRoute from "./Components/Auth/ProtectedRoute"
 
@@ -48,7 +49,7 @@ function App() {
         
         {/* Core Catalog & Info Pages */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/catalog" element={<LandingPage />} />
+        <Route path="/catalog" element={<ExploreCatalog />} />
         <Route path="/course/:id" element={<CourseDetails />} />
 
         {/* Auth Pages */}

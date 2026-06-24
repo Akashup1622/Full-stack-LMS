@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate, useOutletContext } from "react-router-dom"
 import { apiConnector } from "../../Services/apiConnector"
 import { ArrowLeft, Save, Plus, X, UploadCloud } from "lucide-react"
-import toast from "react-hot-toast"
+import toast, { Toaster } from "react-hot-toast"
 
 export default function AdminAddCourse() {
   const { darkMode } = useOutletContext()
@@ -74,6 +74,16 @@ export default function AdminAddCourse() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+    console.log("Submitting Admin Course creation form. Active parameters:", {
+      courseName,
+      courseDescription,
+      whatYouWillLearn,
+      price,
+      category,
+      thumbnailName: thumbnail ? thumbnail.name : "No thumbnail selected",
+      tagsCount: tags.length,
+      instructionsCount: instructions.length
+    })
 
     if (!courseName || !courseDescription || !whatYouWillLearn || !price || !category || !thumbnail) {
       toast.error("Please fill in all fields and select a thumbnail image")
@@ -125,6 +135,7 @@ export default function AdminAddCourse() {
 
   return (
     <div className="space-y-8 pb-16 animate-fadeIn">
+      <Toaster position="top-center" />
 
       {/* Header */}
       <div className="flex items-center gap-3">

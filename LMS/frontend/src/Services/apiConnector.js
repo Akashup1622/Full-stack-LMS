@@ -9,6 +9,13 @@ export const apiConnector = (method, url, bodyData, headers, params) => {
 
   // GET TOKEN
   let token = localStorage.getItem("token")
+  if (token) {
+    try {
+      token = JSON.parse(token)
+    } catch {
+      // fallback if token is already plain text
+    }
+  }
 
   // Check if url refers to admin panel or uses the admin override
   if (url.includes("/admin") || (headers && headers["Use-Admin-Token"])) {

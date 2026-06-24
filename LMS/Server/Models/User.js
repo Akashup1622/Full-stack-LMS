@@ -52,6 +52,18 @@ const userSchema = new mongoose.Schema(
 				ref: "Course",
 			},
 		],
+		enrolledCourses: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Course",
+			},
+		],
+		wishlist: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Course",
+			},
+		],
 		token: {
 			type: String,
 		},

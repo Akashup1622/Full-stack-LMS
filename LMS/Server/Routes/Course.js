@@ -13,7 +13,18 @@ const {
   editCourse,
   getInstructorCourses,
   deleteCourse,
+  exploreCourses,
+  getTrendingCourses,
+  getNewCourses,
+  getCourseById,
 } = require("../Controller/Course")
+
+// Wishlist Controller Import
+const {
+  addToWishlist,
+  removeFromWishlist,
+  getWishlist,
+} = require("../Controller/Wishlist")
 
 
 // Categories Controller Import
@@ -81,6 +92,17 @@ router.put("/editCourse", auth, isInstructor, editCourse)
 router.get("/getInstructorCourses", auth, isInstructor, getInstructorCourses)
 // Delete a Course
 router.delete("/deleteCourse", deleteCourse)
+
+// Explore catalog routes
+router.get("/explore", exploreCourses)
+router.get("/trending", getTrendingCourses)
+router.get("/new", getNewCourses)
+router.get("/getCourseById/:id", getCourseById)
+
+// Wishlist routes
+router.post("/wishlist/add", auth, isStudent, addToWishlist)
+router.post("/wishlist/remove", auth, isStudent, removeFromWishlist)
+router.get("/wishlist", auth, isStudent, getWishlist)
 
 router.put("/updateCourseProgress", auth, isStudent, updateCourseProgress);
 
