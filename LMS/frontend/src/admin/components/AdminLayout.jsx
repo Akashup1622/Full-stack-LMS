@@ -125,10 +125,10 @@ export default function AdminLayout() {
                 to={item.path}
                 onClick={() => setMobileOpen(false)}
                 className={`flex items-center gap-3.5 p-3.5 rounded-xl font-medium text-sm transition-all duration-200 ${isActive
-                    ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg shadow-orange-500/20"
-                    : darkMode
-                      ? "text-gray-400 hover:text-white hover:bg-white/5"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                  ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg shadow-orange-500/20"
+                  : darkMode
+                    ? "text-gray-400 hover:text-white hover:bg-white/5"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   }`}
                 title={collapsed ? item.name : undefined}
               >
@@ -145,8 +145,8 @@ export default function AdminLayout() {
           <button
             onClick={handleLogout}
             className={`w-full flex items-center gap-3.5 p-3 rounded-xl font-semibold text-sm transition-all ${darkMode
-                ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
-                : "text-red-600 hover:bg-red-50 hover:text-red-700"
+              ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              : "text-red-600 hover:bg-red-50 hover:text-red-700"
               }`}
             title={collapsed ? "Logout" : undefined}
           >
@@ -189,8 +189,8 @@ export default function AdminLayout() {
             <button
               onClick={toggleTheme}
               className={`p-2.5 rounded-xl border transition ${darkMode
-                  ? "hover:bg-white/5 border-white/10 text-yellow-400"
-                  : "hover:bg-gray-100 border-gray-200 text-purple-600"
+                ? "hover:bg-white/5 border-white/10 text-yellow-400"
+                : "hover:bg-gray-100 border-gray-200 text-purple-600"
                 }`}
               title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >

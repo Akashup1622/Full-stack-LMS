@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom"
 
 export default function AdminProtectedRoute({ children }) {
   const adminToken = localStorage.getItem("admin_token")
-  
+
   let adminUser = null
   try {
     const rawUser = localStorage.getItem("admin_user")
