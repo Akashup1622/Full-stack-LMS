@@ -14,7 +14,7 @@ exports.auth = async (req, res, next) => {
 			req.body.token ||
 			req.header("Authorization")?.replace("Bearer ", "");
 
-			// console.log("token mila",req.header("Authorization"))
+		// console.log("token mila",req.header("Authorization"))
 		// If JWT is missing, return	 401 Unauthorized response
 		if (!token) {
 			return res.status(401).json({ success: false, message: `Token Missing` });
@@ -29,12 +29,12 @@ exports.auth = async (req, res, next) => {
 			const Session = require("../Models/Session");
 			const activeSession = await Session.findOne({ user: decode.id, token });
 			if (!activeSession) {
-				return res.status(401).json({ 
-					success: false, 
-					message: "Session expired or logged out from this device" 
+				return res.status(401).json({
+					success: false,
+					message: "Session expired or logged out from this device"
 				});
 			}
-			
+
 			// Update last active asynchronously
 			activeSession.lastActive = new Date();
 			await activeSession.save().catch(err => console.error("Session update error:", err));

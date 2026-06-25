@@ -1,21 +1,21 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom"
-import { 
-  LayoutDashboard, 
-  BookOpen, 
-  PlusCircle, 
-  Users, 
-  TrendingUp, 
-  CreditCard, 
-  BarChart3, 
-  MessageSquare, 
-  Settings, 
-  LogOut, 
-  Menu, 
-  X, 
-  Sun, 
-  Moon, 
-  ChevronLeft, 
+import {
+  LayoutDashboard,
+  BookOpen,
+  PlusCircle,
+  Users,
+  TrendingUp,
+  CreditCard,
+  BarChart3,
+  MessageSquare,
+  Settings,
+  LogOut,
+  Menu,
+  X,
+  Sun,
+  Moon,
+  ChevronLeft,
   ChevronRight,
   UserCheck
 } from "lucide-react"
@@ -24,10 +24,10 @@ export default function AdminLayout() {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [darkMode, setDarkMode] = useState(true)
-  
+
   const location = useLocation()
   const navigate = useNavigate()
-  
+
   let adminUser = null
   try {
     const rawUser = localStorage.getItem("admin_user")
@@ -73,31 +73,26 @@ export default function AdminLayout() {
   const activePath = location.pathname
 
   return (
-    <div className={`min-h-screen font-sans transition-colors duration-300 flex ${
-      darkMode ? "bg-[#090d16] text-gray-100" : "bg-gray-50 text-gray-800"
-    }`}>
-      
+    <div className={`min-h-screen font-sans transition-colors duration-300 flex ${darkMode ? "bg-[#090d16] text-gray-100" : "bg-gray-50 text-gray-800"
+      }`}>
+
       {/* Mobile Sidebar Overlay */}
       {mobileOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Sidebar Navigation */}
-      <aside className={`fixed inset-y-0 left-0 z-50 lg:static flex flex-col transition-all duration-300 border-r border-white/5 shadow-2xl ${
-        darkMode ? "bg-[#0c1222] border-r-white/5" : "bg-white border-r-gray-200"
-      } ${
-        collapsed ? "w-20" : "w-64"
-      } ${
-        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-      }`}>
-        
-        {/* Sidebar Header */}
-        <div className={`h-20 flex items-center justify-between px-6 border-b ${
-          darkMode ? "border-white/5" : "border-gray-200"
+      <aside className={`fixed inset-y-0 left-0 z-50 lg:static flex flex-col transition-all duration-300 border-r border-white/5 shadow-2xl ${darkMode ? "bg-[#0c1222] border-r-white/5" : "bg-white border-r-gray-200"
+        } ${collapsed ? "w-20" : "w-64"
+        } ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}>
+
+        {/* Sidebar Header */}
+        <div className={`h-20 flex items-center justify-between px-6 border-b ${darkMode ? "border-white/5" : "border-gray-200"
+          }`}>
           <div className="flex items-center gap-3 overflow-hidden">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-yellow-400 to-orange-500 flex items-center justify-center font-bold text-black text-lg shrink-0">
               Ω
@@ -108,13 +103,12 @@ export default function AdminLayout() {
               </span>
             )}
           </div>
-          
+
           {/* Collapse sidebar button */}
-          <button 
+          <button
             onClick={() => setCollapsed(!collapsed)}
-            className={`hidden lg:flex p-1.5 rounded-lg border transition ${
-              darkMode ? "hover:bg-white/5 border-white/10" : "hover:bg-gray-100 border-gray-200"
-            }`}
+            className={`hidden lg:flex p-1.5 rounded-lg border transition ${darkMode ? "hover:bg-white/5 border-white/10" : "hover:bg-gray-100 border-gray-200"
+              }`}
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
@@ -130,13 +124,12 @@ export default function AdminLayout() {
                 key={item.name}
                 to={item.path}
                 onClick={() => setMobileOpen(false)}
-                className={`flex items-center gap-3.5 p-3.5 rounded-xl font-medium text-sm transition-all duration-200 ${
-                  isActive
+                className={`flex items-center gap-3.5 p-3.5 rounded-xl font-medium text-sm transition-all duration-200 ${isActive
                     ? "bg-gradient-to-r from-yellow-400 to-orange-500 text-black shadow-lg shadow-orange-500/20"
-                    : darkMode 
-                      ? "text-gray-400 hover:text-white hover:bg-white/5" 
+                    : darkMode
+                      ? "text-gray-400 hover:text-white hover:bg-white/5"
                       : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                }`}
+                  }`}
                 title={collapsed ? item.name : undefined}
               >
                 <Icon size={18} className="shrink-0" />
@@ -147,16 +140,14 @@ export default function AdminLayout() {
         </nav>
 
         {/* Sidebar Footer (Logout) */}
-        <div className={`p-4 border-t ${
-          darkMode ? "border-white/5" : "border-gray-200"
-        }`}>
+        <div className={`p-4 border-t ${darkMode ? "border-white/5" : "border-gray-200"
+          }`}>
           <button
             onClick={handleLogout}
-            className={`w-full flex items-center gap-3.5 p-3 rounded-xl font-semibold text-sm transition-all ${
-              darkMode 
-                ? "text-red-400 hover:bg-red-500/10 hover:text-red-300" 
+            className={`w-full flex items-center gap-3.5 p-3 rounded-xl font-semibold text-sm transition-all ${darkMode
+                ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
                 : "text-red-600 hover:bg-red-50 hover:text-red-700"
-            }`}
+              }`}
             title={collapsed ? "Logout" : undefined}
           >
             <LogOut size={18} className="shrink-0" />
@@ -167,23 +158,21 @@ export default function AdminLayout() {
 
       {/* Main Panel Content Area */}
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        
+
         {/* Top Navbar */}
-        <header className={`h-20 flex items-center justify-between px-6 md:px-8 border-b z-30 transition-colors ${
-          darkMode ? "bg-[#0c1222]/80 border-b-white/5" : "bg-white/80 border-b-gray-200"
-        } backdrop-blur-md sticky top-0`}>
-          
+        <header className={`h-20 flex items-center justify-between px-6 md:px-8 border-b z-30 transition-colors ${darkMode ? "bg-[#0c1222]/80 border-b-white/5" : "bg-white/80 border-b-gray-200"
+          } backdrop-blur-md sticky top-0`}>
+
           <div className="flex items-center gap-4">
             {/* Mobile menu trigger */}
             <button
               onClick={() => setMobileOpen(true)}
-              className={`lg:hidden p-2 rounded-xl border ${
-                darkMode ? "hover:bg-white/5 border-white/10" : "hover:bg-gray-100 border-gray-200"
-              }`}
+              className={`lg:hidden p-2 rounded-xl border ${darkMode ? "hover:bg-white/5 border-white/10" : "hover:bg-gray-100 border-gray-200"
+                }`}
             >
               <Menu size={20} />
             </button>
-            
+
             {/* Page header title details */}
             <div className="hidden sm:block">
               <span className={`text-xs font-semibold uppercase tracking-widest ${darkMode ? "text-gray-500" : "text-gray-400"}`}>
@@ -199,11 +188,10 @@ export default function AdminLayout() {
             {/* Light/Dark mode toggler */}
             <button
               onClick={toggleTheme}
-              className={`p-2.5 rounded-xl border transition ${
-                darkMode 
-                  ? "hover:bg-white/5 border-white/10 text-yellow-400" 
+              className={`p-2.5 rounded-xl border transition ${darkMode
+                  ? "hover:bg-white/5 border-white/10 text-yellow-400"
                   : "hover:bg-gray-100 border-gray-200 text-purple-600"
-              }`}
+                }`}
               title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
               {darkMode ? <Sun size={18} /> : <Moon size={18} />}
@@ -222,9 +210,8 @@ export default function AdminLayout() {
                 <p className="text-xs font-semibold leading-tight group-hover:underline">
                   {adminUser ? `${adminUser.firstName} ${adminUser.lastName}` : "System Admin"}
                 </p>
-                <p className={`text-[10px] uppercase font-bold tracking-wider leading-none mt-0.5 ${
-                  darkMode ? "text-yellow-400" : "text-amber-600"
-                }`}>
+                <p className={`text-[10px] uppercase font-bold tracking-wider leading-none mt-0.5 ${darkMode ? "text-yellow-400" : "text-amber-600"
+                  }`}>
                   Root Admin
                 </p>
               </div>
@@ -233,9 +220,8 @@ export default function AdminLayout() {
         </header>
 
         {/* Dynamic Inner Router Views */}
-        <main className={`flex-1 overflow-y-auto p-6 md:p-8 ${
-          darkMode ? "bg-[#090d16]" : "bg-gray-50"
-        }`}>
+        <main className={`flex-1 overflow-y-auto p-6 md:p-8 ${darkMode ? "bg-[#090d16]" : "bg-gray-50"
+          }`}>
           <div className="max-w-7xl mx-auto animate-fadeIn">
             <Outlet context={{ darkMode }} />
           </div>

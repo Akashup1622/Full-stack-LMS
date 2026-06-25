@@ -57,10 +57,10 @@ exports.deleteUser = async (req, res) => {
 
     // Remove user profile
     await Profile.findByIdAndDelete(user.additionalDetails)
-    
+
     // Delete user
     await User.findByIdAndDelete(userId)
-    
+
     // Clean up course progress
     await CourseProgress.deleteMany({ userId })
 
@@ -103,7 +103,7 @@ exports.getPlatformAnalytics = async (req, res) => {
     const studentsCount = await User.countDocuments({ accountType: "Student" })
     const instructorsCount = await User.countDocuments({ accountType: "Instructor" })
     const courses = await Course.find({})
-    
+
     let totalRevenue = 0
     courses.forEach(course => {
       totalRevenue += (course.studentsEnrolled.length * (course.price || 0))
@@ -164,6 +164,30 @@ exports.adminLogin = async (req, res) => {
       { expiresIn: "24h" }
     )
 
+    // Create a Session document so the auth middleware session check passes
+    const Session = require("../Models/Session")
+    try {
+      const deviceInfo = req.headers["user-agent"] || "Admin Panel"
+      const ipAddress = req.ip || req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "0.0.0.0"
+
+      // Enforce max 2 concurrent sessions for admin
+      const activeSessionsCount = await Session.countDocuments({ user: user._id })
+      if (activeSessionsCount >= 2) {
+        const oldestSession = await Session.findOne({ user: user._id }).sort({ lastActive: 1 })
+        if (oldestSession) await Session.findByIdAndDelete(oldestSession._id)
+      }
+
+      await Session.create({
+        user: user._id,
+        token,
+        deviceInfo,
+        ipAddress,
+        lastActive: new Date()
+      })
+    } catch (sessionError) {
+      console.error("Admin session creation error:", sessionError)
+    }
+
     user.token = token
     user.password = undefined
 
@@ -193,7 +217,7 @@ exports.getDashboardStats = async (req, res) => {
   try {
     const totalStudents = await User.countDocuments({ accountType: "Student" })
     const totalCourses = await Course.countDocuments()
-    
+
     // Revenue: sum of enrolled student count * course price
     const courses = await Course.find({})
     let totalRevenue = 0
@@ -202,7 +226,7 @@ exports.getDashboardStats = async (req, res) => {
     })
 
     const activeUsers = await User.countDocuments({ active: true, accountType: "Student" })
-    
+
     // Completed Courses: progress is 100 in CourseProgress
     const completedCoursesCount = await CourseProgress.countDocuments({ progress: 100 })
 
@@ -229,12 +253,12 @@ exports.getDashboardStats = async (req, res) => {
     // Monthly Revenue Graph data (Last 6 Months)
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
     const monthlyRevenue = []
-    
+
     const currentDate = new Date()
     for (let i = 5; i >= 0; i--) {
       const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1)
       const monthLabel = monthNames[d.getMonth()] + " " + d.getFullYear().toString().slice(-2)
-      
+
       const weights = [0.12, 0.15, 0.18, 0.20, 0.15, 0.20]
       const monthWeight = weights[5 - i] || 0.15
       const revenue = Math.round(totalRevenue * monthWeight)
@@ -263,7 +287,7 @@ exports.getDashboardStats = async (req, res) => {
       .limit(3)
       .populate("instructor", "firstName lastName")
       .exec()
-      
+
     recentCourses.forEach(c => {
       recentActivity.push({
         type: "course",
@@ -342,7 +366,7 @@ exports.getStudentProgress = async (req, res) => {
       .exec()
 
     const progressRecords = []
-    
+
     for (const cp of cpDocs) {
       if (!cp.courseID || !cp.userId) continue // Skip deleted items
 

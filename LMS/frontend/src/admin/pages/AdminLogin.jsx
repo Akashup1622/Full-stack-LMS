@@ -9,7 +9,7 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
-  
+
   const navigate = useNavigate()
 
   const handleLogin = async (e) => {
@@ -23,13 +23,13 @@ export default function AdminLogin() {
     const toastId = toast.loading("Verifying administrator credentials...")
     try {
       const res = await apiConnector("POST", "/admin/login", { email, password })
-      
+
       if (res.data.success) {
         toast.success("Welcome back, Administrator!", { id: toastId })
         // Store Admin token & user separately
         localStorage.setItem("admin_token", res.data.token)
         localStorage.setItem("admin_user", JSON.stringify(res.data.user))
-        
+
         // Redirect to admin dashboard
         navigate("/admin/dashboard")
       } else {
@@ -46,11 +46,11 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen bg-[#070b13] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
       <Toaster position="top-center" />
-      
+
       {/* Decorative premium glass elements */}
       <div className="absolute top-1/4 left-1/4 w-80 h-80 bg-yellow-500/10 rounded-full blur-3xl" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl" />
-      
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10">
         <div className="flex justify-center">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-yellow-400 to-orange-500 flex items-center justify-center shadow-xl shadow-orange-500/20">
@@ -68,7 +68,7 @@ export default function AdminLogin() {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md z-10 px-4">
         <div className="bg-[#0f172a]/70 backdrop-blur-xl py-8 px-6 sm:px-10 border border-white/5 shadow-2xl rounded-3xl">
           <form onSubmit={handleLogin} className="space-y-6">
-            
+
             {/* Email field */}
             <div>
               <label htmlFor="email" className="block text-xs font-semibold text-gray-400 uppercase tracking-widest">
