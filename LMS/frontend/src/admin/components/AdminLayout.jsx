@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation, useNavigate, Outlet } from "react-router-dom"
+import { useDispatch, useSelector } from "react-redux"
+import { adminLogout } from "../../Redux/Slices/adminAuthSlice"
 import {
   LayoutDashboard,
   BookOpen,
@@ -27,16 +29,10 @@ export default function AdminLayout() {
 
   const location = useLocation()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
 
-  let adminUser = null
-  try {
-    const rawUser = localStorage.getItem("admin_user")
-    if (rawUser) {
-      adminUser = JSON.parse(rawUser)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  // Get admin user from Redux store (single source of truth)
+  const adminUser = useSelector((state) => state.adminAuth.adminUser)
 
   // Toggle Dark/Light mode class on HTML or wrapper
   useEffect(() => {
@@ -53,9 +49,8 @@ export default function AdminLayout() {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("admin_token")
-    localStorage.removeItem("admin_user")
-    navigate("/admin/login")
+    dispatch(adminLogout())
+    navigate("/admin/login", { replace: true })
   }
 
   const menuItems = [

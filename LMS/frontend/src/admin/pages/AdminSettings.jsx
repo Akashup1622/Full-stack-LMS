@@ -1,21 +1,18 @@
 import { useState } from "react"
 import { useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { User, Shield, Key, Eye, EyeOff, Save, Check } from "lucide-react"
 import toast from "react-hot-toast"
 
+import { useSelector, useDispatch } from "react-redux"
+import { setAdminUser } from "../../Redux/Slices/adminAuthSlice"
+
 export default function AdminSettings() {
   const { darkMode } = useOutletContext()
-  
-  let adminUser = null
-  try {
-    const rawUser = localStorage.getItem("admin_user")
-    if (rawUser) {
-      adminUser = JSON.parse(rawUser)
-    }
-  } catch (err) {
-    console.error(err)
-  }
+  const dispatch = useDispatch()
+
+  // Read admin user from Redux store (single source of truth)
+  const adminUser = useSelector((state) => state.adminAuth.adminUser)
 
   // Profile forms
   const [firstName, setFirstName] = useState(adminUser?.firstName || "")
@@ -35,7 +32,7 @@ export default function AdminSettings() {
     setLoadingProfile(true)
     const toastId = toast.loading("Updating profile details...")
     try {
-      const res = await apiConnector("PUT", "/profile/updateProfile", {
+      const res = await adminApiConnector("PUT", "/profile/updateProfile", {
         firstName,
         lastName,
         gender: "Male",
@@ -45,13 +42,13 @@ export default function AdminSettings() {
       })
       if (res.data.success) {
         toast.success("Profile updated successfully!", { id: toastId })
-        // Update admin_user in localStorage
+        // Update admin user in Redux (which also persists to localStorage)
         const updated = {
           ...adminUser,
           firstName: res.data.updatedUserDetails?.firstName || firstName,
           lastName: res.data.updatedUserDetails?.lastName || lastName
         }
-        localStorage.setItem("admin_user", JSON.stringify(updated))
+        dispatch(setAdminUser(updated))
       }
     } catch (err) {
       console.error(err)
@@ -71,7 +68,7 @@ export default function AdminSettings() {
     setLoadingPass(true)
     const toastId = toast.loading("Updating secure password...")
     try {
-      const res = await apiConnector("POST", "/auth/changepassword", {
+      const res = await adminApiConnector("POST", "/auth/changepassword", {
         oldPassword,
         newPassword
       })

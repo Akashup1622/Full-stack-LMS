@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { CreditCard, DollarSign, ArrowUpRight, TrendingUp, Search, Calendar } from "lucide-react"
 import toast from "react-hot-toast"
 
@@ -14,7 +14,7 @@ export default function AdminPayments() {
     // Generate payments list dynamically based on platform statistics
     const loadPayments = async () => {
       try {
-        const res = await apiConnector("GET", "/admin/getDashboardStats")
+        const res = await adminApiConnector("GET", "/admin/getDashboardStats")
         if (res.data.success) {
           const recent = res.data.data.recentEnrollments || []
           // Expand recent with transactional data

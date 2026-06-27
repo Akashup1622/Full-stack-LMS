@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { ArrowLeft, Save, Plus, X, UploadCloud } from "lucide-react"
 import toast, { Toaster } from "react-hot-toast"
 
@@ -30,7 +30,7 @@ export default function AdminAddCourse() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await apiConnector("GET", "/course/showAllCategories")
+        const res = await adminApiConnector("GET", "/course/showAllCategories")
         if (res.data.success) {
           setCategories(res.data.data)
         }
@@ -114,9 +114,10 @@ export default function AdminAddCourse() {
       formData.append("instructions", JSON.stringify(instructions))
       formData.append("thumbnailImage", thumbnail)
 
-      const res = await apiConnector("POST", "/admin/createCourse", formData, {
-        "Content-Type": "multipart/form-data"
-      })
+      // CRITICAL: Do NOT pass Content-Type header for FormData.
+      // adminApiConnector's interceptor removes it automatically so Axios can
+      // set the correct multipart/form-data boundary string.
+      const res = await adminApiConnector("POST", "/admin/createCourse", formData)
 
       if (res.data.success) {
         toast.success("Course metadata created successfully!", { id: toastId })

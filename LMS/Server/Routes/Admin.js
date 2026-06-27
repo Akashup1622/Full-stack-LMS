@@ -30,33 +30,33 @@ const {
   deleteSubSection
 } = require("../Controller/SubSection")
 
-const { auth, isAdmin } = require("../Middleware/auth")
+const { auth, isAdmin, adminAuth } = require("../Middleware/auth")
 
 // Unprotected Auth Route
 router.post("/login", adminLogin)
 
 // Protected User Management & Analytics Routes
-router.get("/getAllUsers", auth, isAdmin, getAllUsers)
-router.post("/toggleBlockUser", auth, isAdmin, toggleBlockUser)
-router.post("/deleteUser", auth, isAdmin, deleteUser)
-router.post("/approveCourse", auth, isAdmin, approveCourse)
-router.get("/getAnalytics", auth, isAdmin, getPlatformAnalytics)
-router.get("/getDashboardStats", auth, isAdmin, getDashboardStats)
-router.get("/getStudentProgress", auth, isAdmin, getStudentProgress)
+router.get("/getAllUsers", adminAuth, isAdmin, getAllUsers)
+router.post("/toggleBlockUser", adminAuth, isAdmin, toggleBlockUser)
+router.post("/deleteUser", adminAuth, isAdmin, deleteUser)
+router.post("/approveCourse", adminAuth, isAdmin, approveCourse)
+router.get("/getAnalytics", adminAuth, isAdmin, getPlatformAnalytics)
+router.get("/getDashboardStats", adminAuth, isAdmin, getDashboardStats)
+router.get("/getStudentProgress", adminAuth, isAdmin, getStudentProgress)
 
 // Course Management (Guarded by Admin)
-router.post("/createCourse", auth, isAdmin, adminCreateCourse)
-router.put("/editCourse", auth, isAdmin, editCourse)
-router.delete("/deleteCourse", auth, isAdmin, deleteCourse)
+router.post("/createCourse", adminAuth, isAdmin, adminCreateCourse)
+router.put("/editCourse", adminAuth, isAdmin, editCourse)
+router.delete("/deleteCourse", adminAuth, isAdmin, deleteCourse)
 
 // Sections Management (Guarded by Admin)
-router.post("/addSection", auth, isAdmin, createSection)
-router.put("/updateSection", auth, isAdmin, updateSection)
-router.delete("/deleteSection", auth, isAdmin, deleteSection)
+router.post("/addSection", adminAuth, isAdmin, createSection)
+router.put("/updateSection", adminAuth, isAdmin, updateSection)
+router.delete("/deleteSection", adminAuth, isAdmin, deleteSection)
 
 // SubSections/Lectures Management (Guarded by Admin)
-router.post("/addSubSection", auth, isAdmin, createSubSection)
-router.put("/updateSubSection", auth, isAdmin, updateSubSection)
-router.delete("/deleteSubSection", auth, isAdmin, deleteSubSection)
+router.post("/addSubSection", adminAuth, isAdmin, createSubSection)
+router.put("/updateSubSection", adminAuth, isAdmin, updateSubSection)
+router.delete("/deleteSubSection", adminAuth, isAdmin, deleteSubSection)
 
 module.exports = router

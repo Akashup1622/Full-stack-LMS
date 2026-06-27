@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { Users, Search, ToggleLeft, ToggleRight, Trash2, Shield, UserCheck, ShieldAlert } from "lucide-react"
 import toast from "react-hot-toast"
 
@@ -13,7 +13,7 @@ export default function AdminManageStudents() {
 
   const fetchUsers = async () => {
     try {
-      const res = await apiConnector("GET", "/admin/getAllUsers")
+      const res = await adminApiConnector("GET", "/admin/getAllUsers")
       if (res.data.success) {
         setUsers(res.data.data)
       }
@@ -36,7 +36,7 @@ export default function AdminManageStudents() {
     }
 
     try {
-      const res = await apiConnector("POST", "/admin/toggleBlockUser", { userId })
+      const res = await adminApiConnector("POST", "/admin/toggleBlockUser", { userId })
       if (res.data.success) {
         toast.success(`User account ${res.data.data.active ? "activated" : "blocked"} successfully`)
         setUsers(prev => prev.map(u => u._id === userId ? { ...u, active: res.data.data.active } : u))
@@ -53,7 +53,7 @@ export default function AdminManageStudents() {
     }
 
     try {
-      const res = await apiConnector("POST", "/admin/deleteUser", { userId })
+      const res = await adminApiConnector("POST", "/admin/deleteUser", { userId })
       if (res.data.success) {
         toast.success("User account deleted successfully")
         setUsers(prev => prev.filter(u => u._id !== userId))

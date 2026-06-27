@@ -1,6 +1,8 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { useDispatch, useSelector } from "react-redux"
+import { setAdminToken, setAdminUser, isTokenValid } from "../../Redux/Slices/adminAuthSlice"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { ShieldCheck, Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react"
 import toast, { Toaster } from "react-hot-toast"
 
@@ -10,7 +12,16 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  const dispatch = useDispatch()
   const navigate = useNavigate()
+  const { adminToken } = useSelector((state) => state.adminAuth)
+
+  // If already logged in with a valid token, skip the login page
+  useEffect(() => {
+    if (adminToken && isTokenValid(adminToken)) {
+      navigate("/admin/dashboard", { replace: true })
+    }
+  }, [adminToken, navigate])
 
   const handleLogin = async (e) => {
     e.preventDefault()
@@ -22,22 +33,26 @@ export default function AdminLogin() {
     setLoading(true)
     const toastId = toast.loading("Verifying administrator credentials...")
     try {
-      const res = await apiConnector("POST", "/admin/login", { email, password })
+      const res = await adminApiConnector("POST", "/admin/login", { email, password })
 
       if (res.data.success) {
         toast.success("Welcome back, Administrator!", { id: toastId })
-        // Store Admin token & user separately
-        localStorage.setItem("admin_token", res.data.token)
-        localStorage.setItem("admin_user", JSON.stringify(res.data.user))
+
+        // Store token & user in Redux (which also persists to localStorage)
+        dispatch(setAdminToken(res.data.token))
+        dispatch(setAdminUser(res.data.user))
 
         // Redirect to admin dashboard
-        navigate("/admin/dashboard")
+        navigate("/admin/dashboard", { replace: true })
       } else {
         toast.error(res.data.message || "Failed to authenticate", { id: toastId })
       }
     } catch (err) {
       console.error(err)
-      toast.error(err.response?.data?.message || "Invalid credentials or unauthorized access", { id: toastId })
+      toast.error(
+        err.response?.data?.message || "Invalid credentials or unauthorized access",
+        { id: toastId }
+      )
     } finally {
       setLoading(false)
     }
@@ -71,7 +86,7 @@ export default function AdminLogin() {
 
             {/* Email field */}
             <div>
-              <label htmlFor="email" className="block text-xs font-semibold text-gray-400 uppercase tracking-widest">
+              <label htmlFor="admin-email" className="block text-xs font-semibold text-gray-400 uppercase tracking-widest">
                 Admin Email Address
               </label>
               <div className="mt-2.5 relative rounded-xl shadow-sm">
@@ -79,10 +94,11 @@ export default function AdminLogin() {
                   <Mail size={16} className="text-gray-500" />
                 </div>
                 <input
-                  id="email"
+                  id="admin-email"
                   name="email"
                   type="email"
                   required
+                  autoComplete="email"
                   placeholder="admin@lms.com"
                   className="block w-full pl-10 pr-3 py-3 bg-slate-950/80 border border-white/10 rounded-xl text-white placeholder-gray-500 outline-none focus:border-yellow-400 text-sm transition"
                   value={email}
@@ -93,7 +109,7 @@ export default function AdminLogin() {
 
             {/* Password field */}
             <div>
-              <label htmlFor="password" className="block text-xs font-semibold text-gray-400 uppercase tracking-widest">
+              <label htmlFor="admin-password" className="block text-xs font-semibold text-gray-400 uppercase tracking-widest">
                 Password
               </label>
               <div className="mt-2.5 relative rounded-xl shadow-sm">
@@ -101,10 +117,11 @@ export default function AdminLogin() {
                   <Lock size={16} className="text-gray-500" />
                 </div>
                 <input
-                  id="password"
+                  id="admin-password"
                   name="password"
                   type={showPassword ? "text" : "password"}
                   required
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   className="block w-full pl-10 pr-10 py-3 bg-slate-950/80 border border-white/10 rounded-xl text-white placeholder-gray-500 outline-none focus:border-yellow-400 text-sm transition"
                   value={password}
@@ -123,6 +140,7 @@ export default function AdminLogin() {
             {/* Submit Button */}
             <div>
               <button
+                id="admin-login-submit"
                 type="submit"
                 disabled={loading}
                 className="w-full flex justify-center items-center gap-2 py-3 px-4 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-black font-extrabold rounded-xl text-sm shadow-lg shadow-orange-500/10 transition hover:scale-[0.98] disabled:opacity-50 disabled:scale-100"

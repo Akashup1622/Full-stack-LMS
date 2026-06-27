@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useNavigate, useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { PlusCircle, Search, Edit2, Trash2, Eye, ToggleLeft, ToggleRight, Sparkles } from "lucide-react"
 import toast from "react-hot-toast"
 
@@ -14,7 +14,7 @@ export default function AdminManageCourses() {
   const fetchCourses = async () => {
     try {
       // Fetch all registered courses (which returns all courses)
-      const res = await apiConnector("GET", "/course/getAllCourses")
+      const res = await adminApiConnector("GET", "/course/getAllCourses")
       if (res.data.success) {
         setCourses(res.data.data)
       }
@@ -32,7 +32,7 @@ export default function AdminManageCourses() {
 
   const handleToggleStatus = async (courseId) => {
     try {
-      const res = await apiConnector("POST", "/admin/approveCourse", { courseId })
+      const res = await adminApiConnector("POST", "/admin/approveCourse", { courseId })
       if (res.data.success) {
         toast.success(`Course set to ${res.data.data.status} successfully`)
         // Update local state
@@ -50,7 +50,7 @@ export default function AdminManageCourses() {
     }
 
     try {
-      const res = await apiConnector("DELETE", "/admin/deleteCourse", { courseId })
+      const res = await adminApiConnector("DELETE", "/admin/deleteCourse", { courseId })
       if (res.data.success) {
         toast.success("Course deleted successfully")
         setCourses(prev => prev.filter(c => c._id !== courseId))

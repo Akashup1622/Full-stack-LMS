@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useOutletContext, Link } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { 
   Users, 
   BookOpen, 
@@ -22,7 +22,7 @@ export default function AdminDashboard() {
 
   const fetchDashboardStats = async () => {
     try {
-      const res = await apiConnector("GET", "/admin/getDashboardStats")
+      const res = await adminApiConnector("GET", "/admin/getDashboardStats")
       if (res.data.success) {
         setStats(res.data.data)
       }

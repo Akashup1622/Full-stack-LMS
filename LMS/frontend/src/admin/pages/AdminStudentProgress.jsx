@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { Search, ChevronLeft, ChevronRight, BookOpen, User, RefreshCw, Calendar, ArrowUpDown } from "lucide-react"
 import toast from "react-hot-toast"
 
@@ -24,7 +24,7 @@ export default function AdminStudentProgress() {
   // Fetch course list for filtering
   const fetchCourses = async () => {
     try {
-      const res = await apiConnector("GET", "/course/getAllCourses")
+      const res = await adminApiConnector("GET", "/course/getAllCourses")
       if (res.data.success) {
         setCourses(res.data.data)
       }
@@ -46,7 +46,7 @@ export default function AdminStudentProgress() {
         sortOrder
       })
 
-      const res = await apiConnector("GET", `/admin/getStudentProgress?${queryParams.toString()}`)
+      const res = await adminApiConnector("GET", `/admin/getStudentProgress?${queryParams.toString()}`)
       if (res.data.success) {
         setRecords(res.data.data.records)
         setTotalPages(res.data.data.pagination.totalPages || 1)

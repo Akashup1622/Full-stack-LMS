@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { BarChart3, TrendingUp, Users, BookOpen, AlertCircle } from "lucide-react"
 import { RevenueLineChart, EnrollmentsBarChart } from "../components/SVGCharts"
 import toast from "react-hot-toast"
@@ -13,7 +13,7 @@ export default function AdminAnalytics() {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const res = await apiConnector("GET", "/admin/getDashboardStats")
+        const res = await adminApiConnector("GET", "/admin/getDashboardStats")
         if (res.data.success) {
           setStats(res.data.data)
         }

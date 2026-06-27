@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate, useOutletContext } from "react-router-dom"
-import { apiConnector } from "../../Services/apiConnector"
+import { adminApiConnector } from "../../Services/adminApiConnector"
 import { 
   ArrowLeft, 
   Save, 
@@ -50,7 +50,7 @@ export default function AdminEditCourse() {
 
   const fetchCourseDetails = async () => {
     try {
-      const res = await apiConnector("POST", "/course/getFullCourseDetails", { courseId })
+      const res = await adminApiConnector("POST", "/course/getFullCourseDetails", { courseId })
       if (res.data.success) {
         const details = res.data.data.courseDetails
         setCourse(details)
@@ -68,7 +68,7 @@ export default function AdminEditCourse() {
 
   const fetchCategories = async () => {
     try {
-      const res = await apiConnector("GET", "/course/showAllCategories")
+      const res = await adminApiConnector("GET", "/course/showAllCategories")
       if (res.data.success) {
         setCategories(res.data.data)
       }
@@ -92,7 +92,7 @@ export default function AdminEditCourse() {
     e.preventDefault()
     const toastId = toast.loading("Updating course metadata...")
     try {
-      const res = await apiConnector("PUT", "/admin/editCourse", {
+      const res = await adminApiConnector("PUT", "/admin/editCourse", {
         courseId,
         courseName,
         courseDescription,
@@ -117,7 +117,7 @@ export default function AdminEditCourse() {
     if (!newSectionName.trim()) return
 
     try {
-      const res = await apiConnector("POST", "/admin/addSection", {
+      const res = await adminApiConnector("POST", "/admin/addSection", {
         sectionName: newSectionName.trim(),
         courseId
       })
@@ -136,7 +136,7 @@ export default function AdminEditCourse() {
     if (!editingSectionName.trim()) return
 
     try {
-      const res = await apiConnector("PUT", "/admin/updateSection", {
+      const res = await adminApiConnector("PUT", "/admin/updateSection", {
         sectionId,
         sectionName: editingSectionName.trim()
       })
@@ -157,7 +157,7 @@ export default function AdminEditCourse() {
     }
 
     try {
-      const res = await apiConnector("DELETE", "/admin/deleteSection", {
+      const res = await adminApiConnector("DELETE", "/admin/deleteSection", {
         sectionId,
         courseId
       })
@@ -204,18 +204,16 @@ export default function AdminEditCourse() {
       let res
       if (editingLecture) {
         formData.append("subSectionId", editingLecture._id)
-        res = await apiConnector("PUT", "/admin/updateSubSection", formData, {
-          "Content-Type": "multipart/form-data"
-        })
+        // No Content-Type header — let Axios set multipart boundary automatically
+        res = await adminApiConnector("PUT", "/admin/updateSubSection", formData)
       } else {
         if (!lectureVideo) {
           toast.error("Please select a video file to upload", { id: toastId })
           setUploadingLecture(false)
           return
         }
-        res = await apiConnector("POST", "/admin/addSubSection", formData, {
-          "Content-Type": "multipart/form-data"
-        })
+        // No Content-Type header — let Axios set multipart boundary automatically
+        res = await adminApiConnector("POST", "/admin/addSubSection", formData)
       }
 
       if (res.data.success) {
@@ -239,7 +237,7 @@ export default function AdminEditCourse() {
     }
 
     try {
-      const res = await apiConnector("DELETE", "/admin/deleteSubSection", {
+      const res = await adminApiConnector("DELETE", "/admin/deleteSubSection", {
         subSectionId,
         sectionId
       })

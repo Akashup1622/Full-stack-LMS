@@ -5,6 +5,54 @@ const User = require("../Models/User");
 // Configuring dotenv to load environment variables from .env file
 dotenv.config();
 
+// ─────────────────────────────────────────────────────────────────────────────
+// adminAuth — Stateless JWT middleware for Admin Panel routes.
+// Does NOT perform a session DB lookup so it cannot fail due to missing/expired
+// session records.  Only verifies the JWT signature and expiry.
+// ─────────────────────────────────────────────────────────────────────────────
+exports.adminAuth = async (req, res, next) => {
+  try {
+    // Extract token from cookie, body, or Authorization header
+    const token =
+      req.cookies.token ||
+      req.body.token ||
+      req.header("Authorization")?.replace("Bearer ", "");
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "Admin token missing. Please log in to the Admin Panel.",
+      });
+    }
+
+    try {
+      // Verify the JWT — this also validates expiry automatically
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Ensure the token belongs to an Admin account
+      if (decoded.accountType !== "Admin") {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. Admin privileges required.",
+        });
+      }
+
+      req.user = decoded;
+      next();
+    } catch (jwtError) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired admin token. Please log in again.",
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error during admin token validation.",
+    });
+  }
+};
+
 // This function is used as middleware to authenticate user requests
 exports.auth = async (req, res, next) => {
   try {
