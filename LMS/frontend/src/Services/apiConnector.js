@@ -5,6 +5,22 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 })
 
+// Intercept responses to handle 401 errors globally
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear localStorage auth state
+      localStorage.removeItem("token")
+      localStorage.removeItem("user")
+      localStorage.removeItem("admin_token")
+      // Redirect to login
+      window.location.href = "/login"
+    }
+    return Promise.reject(error)
+  }
+)
+
 export const apiConnector = (method, url, bodyData, headers, params) => {
 
   // GET TOKEN
